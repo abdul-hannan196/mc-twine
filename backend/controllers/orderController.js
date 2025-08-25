@@ -22,6 +22,23 @@ const placeOrder = async (req,res) => {
         
         const { userId, items, amount, address} = req.body;
 
+        // Validate required fields
+        if (!userId) {
+            return res.json({success: false, message: "User ID is required. Please login again."})
+        }
+        
+        if (!items || !items.length) {
+            return res.json({success: false, message: "Cart is empty"})
+        }
+        
+        if (!amount || amount <= 0) {
+            return res.json({success: false, message: "Invalid order amount"})
+        }
+        
+        if (!address) {
+            return res.json({success: false, message: "Address is required"})
+        }
+
         const orderData = {
             userId,
             items,
@@ -53,6 +70,23 @@ const placeOrderStripe = async (req,res) => {
         
         const { userId, items, amount, address} = req.body
         const { origin } = req.headers;
+
+        // Validate required fields
+        if (!userId) {
+            return res.json({success: false, message: "User ID is required. Please login again."})
+        }
+        
+        if (!items || !items.length) {
+            return res.json({success: false, message: "Cart is empty"})
+        }
+        
+        if (!amount || amount <= 0) {
+            return res.json({success: false, message: "Invalid order amount"})
+        }
+        
+        if (!address) {
+            return res.json({success: false, message: "Address is required"})
+        }
 
         const orderData = {
             userId,
@@ -110,6 +144,15 @@ const verifyStripe = async (req,res) => {
     const { orderId, success, userId } = req.body
 
     try {
+        // Validate required fields
+        if (!userId) {
+            return res.json({success: false, message: "User ID is required. Please login again."})
+        }
+        
+        if (!orderId) {
+            return res.json({success: false, message: "Order ID is required"})
+        }
+
         if (success === "true") {
             await orderModel.findByIdAndUpdate(orderId, {payment:true});
             await userModel.findByIdAndUpdate(userId, {cartData: {}})
@@ -131,6 +174,23 @@ const placeOrderRazorpay = async (req,res) => {
     try {
         
         const { userId, items, amount, address} = req.body
+
+        // Validate required fields
+        if (!userId) {
+            return res.json({success: false, message: "User ID is required. Please login again."})
+        }
+        
+        if (!items || !items.length) {
+            return res.json({success: false, message: "Cart is empty"})
+        }
+        
+        if (!amount || amount <= 0) {
+            return res.json({success: false, message: "Invalid order amount"})
+        }
+        
+        if (!address) {
+            return res.json({success: false, message: "Address is required"})
+        }
 
         const orderData = {
             userId,
@@ -170,6 +230,15 @@ const verifyRazorpay = async (req,res) => {
         
         const { userId, razorpay_order_id  } = req.body
 
+        // Validate required fields
+        if (!userId) {
+            return res.json({success: false, message: "User ID is required. Please login again."})
+        }
+        
+        if (!razorpay_order_id) {
+            return res.json({success: false, message: "Razorpay order ID is required"})
+        }
+
         const orderInfo = await razorpayInstance.orders.fetch(razorpay_order_id)
         if (orderInfo.status === 'paid') {
             await orderModel.findByIdAndUpdate(orderInfo.receipt,{payment:true});
@@ -206,6 +275,11 @@ const userOrders = async (req,res) => {
     try {
         
         const { userId } = req.body
+
+        // Validate userId
+        if (!userId) {
+            return res.json({success: false, message: "User ID is required. Please login again."})
+        }
 
         const orders = await orderModel.find({ userId })
         res.json({success:true,orders})
